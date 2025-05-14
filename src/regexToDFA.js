@@ -1,11 +1,9 @@
-// src/regexToDFA.js
 
-// Helper function to get unique elements from array
 function unique(array) {
     return [...new Set(array)];
   }
   
-  // NFA state class with unique IDs
+  
   class NFAState {
     static idCounter = 0;
     
@@ -27,7 +25,7 @@ function unique(array) {
       this.epsilonTransitions.push(state);
     }
   
-    // Serialize without circular references
+    
     toJSON() {
       return {
         id: this.id,
@@ -78,7 +76,7 @@ function unique(array) {
     }
   }
   
-  // Convert infix regex to postfix notation with explicit concatenation
+  
   function regexToPostfix(regex) {
     const output = [];
     const operators = [];
@@ -86,7 +84,7 @@ function unique(array) {
   
     const precedence = {
       '|': 1,
-      '·': 2, // Concatenation
+      '·': 2, 
       '?': 3,
       '*': 3,
       '+': 3
@@ -95,7 +93,7 @@ function unique(array) {
     for (let i = 0; i < regex.length; i++) {
       const c = regex[i];
   
-      if (c === '\\') { // Handle escape characters
+      if (c === '\\') { 
         i++;
         if (i < regex.length) {
           output.push(regex[i]);
@@ -118,7 +116,7 @@ function unique(array) {
         prevWasLiteral = true;
       } else if (c in precedence) {
         if (c === '|' && prevWasLiteral) {
-          // Insert concatenation before alternation
+          
           while (operators.length > 0 && operators[operators.length - 1] === '·') {
             output.push(operators.pop());
           }
@@ -151,18 +149,18 @@ function unique(array) {
     return output.join('');
   }
   
-  // Convert postfix regex to NFA using Thompson's construction
+  
   function postfixToNFA(postfix) {
     const stack = [];
   
     for (const c of postfix) {
-      if (c === '·') { // Concatenation
+      if (c === '·') { 
         const nfa2 = stack.pop();
         const nfa1 = stack.pop();
         nfa1.acceptState.addEpsilonTransition(nfa2.startState);
         nfa1.acceptState.isAccepting = false;
         stack.push(new NFA(nfa1.startState, nfa2.acceptState));
-      } else if (c === '|') { // Alternation
+      } else if (c === '|') { 
         const nfa2 = stack.pop();
         const nfa1 = stack.pop();
         const startState = new NFAState();
@@ -175,7 +173,7 @@ function unique(array) {
         nfa2.acceptState.isAccepting = false;
         acceptState.isAccepting = true;
         stack.push(new NFA(startState, acceptState));
-      } else if (c === '*') { // Kleene star
+      } else if (c === '*') { 
         const nfa = stack.pop();
         const startState = new NFAState();
         const acceptState = new NFAState();
@@ -186,7 +184,7 @@ function unique(array) {
         nfa.acceptState.isAccepting = false;
         acceptState.isAccepting = true;
         stack.push(new NFA(startState, acceptState));
-      } else if (c === '+') { // One or more
+      } else if (c === '+') { 
         const nfa = stack.pop();
         const startState = new NFAState();
         const acceptState = new NFAState();
@@ -196,7 +194,7 @@ function unique(array) {
         nfa.acceptState.isAccepting = false;
         acceptState.isAccepting = true;
         stack.push(new NFA(startState, acceptState));
-      } else if (c === '?') { // Zero or one
+      } else if (c === '?') {
         const nfa = stack.pop();
         const startState = new NFAState();
         const acceptState = new NFAState();
@@ -206,7 +204,7 @@ function unique(array) {
         nfa.acceptState.isAccepting = false;
         acceptState.isAccepting = true;
         stack.push(new NFA(startState, acceptState));
-      } else { // Literal character
+      } else { 
         const startState = new NFAState();
         const acceptState = new NFAState();
         startState.addTransition(c, acceptState);
@@ -226,7 +224,6 @@ function unique(array) {
     const dfaTransitions = {};
     const dfaFinalStates = [];
   
-    // Extract alphabet from NFA transitions
     const nfaStates = getAllStates(nfa.startState);
     for (const state of nfaStates) {
       for (const symbol in state.transitions) {
@@ -236,7 +233,6 @@ function unique(array) {
       }
     }
   
-    // Initial state is epsilon-closure of NFA's start state
     const initialState = NFA.epsilonClosure([nfa.startState]);
     const initialStateKey = JSON.stringify(initialState.map(s => s.id));
     stateMap.set(initialStateKey, `q${stateMap.size}`);
@@ -249,15 +245,12 @@ function unique(array) {
       const currentStateKey = JSON.stringify(currentStateSet.map(s => s.id));
       const currentStateName = stateMap.get(currentStateKey);
   
-      // Check if this DFA state should be accepting
       if (currentStateSet.some(state => state.isAccepting)) {
         dfaFinalStates.push(currentStateName);
       }
   
-      // Initialize transitions for this state
       dfaTransitions[currentStateName] = {};
   
-      // Compute transitions for each symbol
       for (const symbol of alphabet) {
         const nextStateSet = NFA.move(currentStateSet, symbol);
         const nextStateKey = JSON.stringify(nextStateSet.map(s => s.id));
@@ -275,7 +268,6 @@ function unique(array) {
       }
     }
   
-    // Add trap state for missing transitions
     const trapState = 'qtrap';
     let hasTrapState = false;
   
@@ -304,7 +296,6 @@ function unique(array) {
     };
   }
   
-  // Helper function to get all NFA states
   function getAllStates(startState) {
     const visited = new Set();
     const stack = [startState];
@@ -313,7 +304,6 @@ function unique(array) {
     while (stack.length > 0) {
       const state = stack.pop();
       
-      // Process epsilon transitions
       for (const nextState of state.epsilonTransitions) {
         if (!visited.has(nextState)) {
           visited.add(nextState);
@@ -321,7 +311,7 @@ function unique(array) {
         }
       }
       
-      // Process symbol transitions
+    
       for (const symbol in state.transitions) {
         for (const nextState of state.transitions[symbol]) {
           if (!visited.has(nextState)) {
@@ -335,17 +325,14 @@ function unique(array) {
     return Array.from(visited);
   }
   
-  // Main conversion function
   export function regexToDFA(regex) {
     if (!regex || typeof regex !== 'string') {
       throw new Error('Invalid regular expression');
     }
   
     try {
-      // Reset static ID counter
       NFAState.idCounter = 0;
   
-      // Handle empty regex
       if (regex === '') {
         return {
           states: ['q0'],
@@ -356,13 +343,10 @@ function unique(array) {
         };
       }
   
-      // Convert to postfix notation
       const postfix = regexToPostfix(regex);
       
-      // Convert to NFA
       const nfa = postfixToNFA(postfix);
       
-      // Convert to DFA
       const dfa = nfaToDFA(nfa);
       
       return dfa;
