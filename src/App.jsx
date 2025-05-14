@@ -3,7 +3,7 @@ import DFADiagram from './DFADiagram';
 import { regexToDFA } from './regexToDFA';
 
 function App() {
-  const [regex, setRegex] = useState('a(b|c)*d'); // Default example
+  const [regex, setRegex] = useState('a(b|c)*d'); 
   const [dfaData, setDfaData] = useState(null);
   const [error, setError] = useState('');
 

@@ -49,7 +49,7 @@ const DFADiagram = ({ dfa }) => {
   return (
     <div className="relative bg-white rounded-lg shadow-lg p-6 overflow-auto">
       <svg width="800" height="600" viewBox="0 0 800 600" className="w-full h-auto">
-        {/* Arrowhead Definitions */}
+       
         <defs>
           <marker
             id="arrowhead"
@@ -63,14 +63,14 @@ const DFADiagram = ({ dfa }) => {
           </marker>
         </defs>
 
-        {/* Draw transitions */}
+        
         {Object.entries(transitionGroups).map(([key, transGroup]) => {
           const fromState = transGroup[0].fromState;
           const toState = transGroup[0].toState;
           const from = statePositions[fromState];
           const to = statePositions[toState];
 
-          // Self-loop
+        
           if (fromState === toState) {
             const loopRadius = 30;
             return (
@@ -97,7 +97,7 @@ const DFADiagram = ({ dfa }) => {
             );
           }
 
-          // Regular transitions
+          
           return transGroup.map((transition, index) => {
             const total = transGroup.length;
             const control = getControlPoint(from, to, index, total);
@@ -122,7 +122,7 @@ const DFADiagram = ({ dfa }) => {
           });
         })}
 
-        {/* Draw states */}
+        
         {dfa.states.map(state => {
           const isStart = state === dfa.start_state;
           const isFinal = dfa.final_states.includes(state);
